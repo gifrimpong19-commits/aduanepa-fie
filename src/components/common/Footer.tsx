@@ -12,8 +12,12 @@ export const Footer: React.FC = () => {
           
           {/* Col 1: About AduanePa Fie */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-amber-500 flex items-center justify-center text-white text-xl">
+            <div 
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex items-center gap-3 cursor-pointer group"
+              title="Back to Top"
+            >
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-amber-500 flex items-center justify-center text-white text-xl shadow-warm group-hover:scale-105 transition-transform">
                 🍲
               </div>
               <span className="font-display font-black text-2xl text-white">

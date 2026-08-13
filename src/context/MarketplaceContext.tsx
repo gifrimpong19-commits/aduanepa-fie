@@ -68,7 +68,10 @@ interface MarketplaceContextType {
   rejectUserStatus: (type: 'vendor' | 'rider' | 'customer', id: string, reason?: string) => void;
   addUniversity: (uni: GhanaianUniversity) => void;
   
-  // Auth simulation
+  // Auth & Guest state
+  isGuest: boolean;
+  setIsGuest: (isGuest: boolean) => void;
+  logout: () => void;
   loginAs: (role: Role, customId?: string) => void;
   signupCustomer: (data: { name: string; email: string; phone: string; universityId: string; landmark: string }) => UserProfile;
 }
@@ -129,10 +132,22 @@ export const MarketplaceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     return (saved as Role) || 'customer';
   });
 
+  const [isGuest, setIsGuest] = useState<boolean>(() => {
+    const saved = localStorage.getItem(`${STORAGE_PREFIX}is_guest`);
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
     const saved = localStorage.getItem(`${STORAGE_PREFIX}current_user`);
     return saved ? JSON.parse(saved) : INITIAL_USERS[0];
   });
+
+  const logout = () => {
+    setIsGuest(true);
+    setCurrentUser(INITIAL_USERS[0]);
+    localStorage.setItem(`${STORAGE_PREFIX}is_guest`, JSON.stringify(true));
+    localStorage.removeItem(`${STORAGE_PREFIX}current_user`);
+  };
 
   const [cart, setCart] = useState<Cart>(() => {
     const saved = localStorage.getItem(`${STORAGE_PREFIX}cart`);
@@ -482,7 +497,7 @@ export const MarketplaceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       phone: data.phone,
       role: 'customer',
       status: 'approved',
-      avatarUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=300&h=300&q=80',
+      avatarUrl: `https://api.dicebear.com/7.x/micah/svg?seed=${encodeURIComponent(data.name)}&skinColor=8d5524,763900,614335&hairColor=000000`,
       universityId: data.universityId,
       region: uni.region,
       city: uni.city,
@@ -492,6 +507,8 @@ export const MarketplaceProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     setUsers(prev => [newCust, ...prev]);
     setCurrentUser(newCust);
+    setIsGuest(false);
+    localStorage.setItem(`${STORAGE_PREFIX}is_guest`, JSON.stringify(false));
     setCurrentRole('customer');
     return newCust;
   };
@@ -501,6 +518,9 @@ export const MarketplaceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       value={{
         currentRole,
         setCurrentRole,
+        isGuest,
+        setIsGuest,
+        logout,
         currentUser,
         setCurrentUser,
         activeUniversity,
