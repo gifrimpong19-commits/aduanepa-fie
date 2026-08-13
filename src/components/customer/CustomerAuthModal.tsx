@@ -6,7 +6,6 @@ import {
   CheckCircle2, 
   KeyRound, 
   ArrowRight,
-  AlertCircle,
   Lock,
   Mail,
   Phone,
