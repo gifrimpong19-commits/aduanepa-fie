@@ -4,7 +4,11 @@ import { VehicleType } from '../../types';
 import { 
   Bike, 
   Upload, 
-  ShieldCheck
+  ShieldCheck,
+  ShieldAlert,
+  User,
+  Phone,
+  Mail
 } from 'lucide-react';
 
 interface RiderRegisterProps {
@@ -24,18 +28,46 @@ export const RiderRegister: React.FC<RiderRegisterProps> = ({ onRegistered }) =>
   const [vehicleDoc, setVehicleDoc] = useState<string>('');
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [assignedCode, setAssignedCode] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const validateGhanaPhone = (phoneStr: string) => {
+    return /^(\+?233|0)[235][0-9]{8}$/.test(phoneStr.replace(/[\s-]/g, ''));
+  };
+
+  const validateEmail = (emailStr: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailStr);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
+
+    if (!name.trim()) {
+      setErrorMessage('Please enter your full legal name.');
+      return;
+    }
+    if (!validateGhanaPhone(phone.trim())) {
+      setErrorMessage('Please enter a valid Ghanaian phone number (e.g. 024 555 0192 or +233 24 555 0192).');
+      return;
+    }
+    if (!validateEmail(email.trim())) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
+    if (!vehicleRegNumber.trim()) {
+      setErrorMessage('Please provide your vehicle or bicycle registration tag.');
+      return;
+    }
+
     const uni = universities.find(u => u.id === selectedUniId) || activeUniversity;
 
     const newRider = addRider({
-      name,
-      email,
-      phone,
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
       avatarUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&h=300&q=80',
       vehicleType,
-      vehicleRegNumber,
+      vehicleRegNumber: vehicleRegNumber.trim(),
       universityId: selectedUniId,
       region: uni.region,
       city: uni.city,
@@ -100,10 +132,20 @@ export const RiderRegister: React.FC<RiderRegisterProps> = ({ onRegistered }) =>
             </div>
           </div>
 
+          {errorMessage && (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-2.5 text-xs text-rose-800 animate-in fade-in">
+              <ShieldAlert className="w-4 h-4 text-rose-600 flex-shrink-0" />
+              <span className="font-medium">{errorMessage}</span>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">Full Legal Name</label>
+                <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+                  <User className="w-3 h-3 text-emerald-600" />
+                  <span>Full Legal Name</span>
+                </label>
                 <input
                   type="text"
                   required
@@ -115,11 +157,14 @@ export const RiderRegister: React.FC<RiderRegisterProps> = ({ onRegistered }) =>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">Phone Number (Ghana)</label>
+                <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+                  <Phone className="w-3 h-3 text-emerald-600" />
+                  <span>Phone Number (Ghana)</span>
+                </label>
                 <input
                   type="tel"
                   required
-                  placeholder="+233 24 000 0000"
+                  placeholder="024 555 0192"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full p-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-emerald-500"
@@ -128,7 +173,10 @@ export const RiderRegister: React.FC<RiderRegisterProps> = ({ onRegistered }) =>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Email Address</label>
+              <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+                <Mail className="w-3 h-3 text-emerald-600" />
+                <span>Email Address</span>
+              </label>
               <input
                 type="email"
                 required

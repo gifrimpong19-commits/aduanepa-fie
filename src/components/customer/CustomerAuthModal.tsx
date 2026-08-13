@@ -5,7 +5,13 @@ import {
   MapPin, 
   CheckCircle2, 
   KeyRound, 
-  ArrowRight
+  ArrowRight,
+  AlertCircle,
+  Lock,
+  Mail,
+  Phone,
+  User,
+  ShieldAlert
 } from 'lucide-react';
 
 interface CustomerAuthModalProps {
@@ -31,60 +37,115 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ isOpen, on
   const [selectedUniId, setSelectedUniId] = useState<string>(activeUniversity.id);
   const [landmark, setLandmark] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [otpCode, setOtpCode] = useState<string>('');
   const [simulatedSentOtp, setSimulatedSentOtp] = useState<string>('');
+  
+  // Validation errors
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const validateEmail = (emailStr: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailStr);
+  };
+
+  const validateGhanaPhone = (phoneStr: string) => {
+    // Allows formats like +233 24 000 0000, 0240000000, 054..., 020..., etc.
+    return /^(\+?233|0)[235][0-9]{8}$/.test(phoneStr.replace(/[\s-]/g, ''));
+  };
 
   const handleStartSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !phone || !landmark) {
-      alert('Please fill all required fields');
+    setErrorMessage(null);
+
+    if (!name.trim()) {
+      setErrorMessage('Please enter your full name.');
       return;
     }
+    if (!validateEmail(email.trim())) {
+      setErrorMessage('Please enter a valid student/personal email address.');
+      return;
+    }
+    if (!validateGhanaPhone(phone.trim())) {
+      setErrorMessage('Please enter a valid Ghanaian phone number (e.g. 054 892 1432 or +233 54 892 1432).');
+      return;
+    }
+    if (!landmark.trim()) {
+      setErrorMessage('Please enter your hall, hostel, or delivery landmark.');
+      return;
+    }
+    if (password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters long.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match. Please re-enter.');
+      return;
+    }
+
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setSimulatedSentOtp(code);
+    setErrorMessage(null);
     setMode('otp_verify');
   };
 
   const handleVerifyOtpAndCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (otpCode !== simulatedSentOtp && otpCode !== '123456') {
-      alert(`Invalid OTP code! For demo, enter "${simulatedSentOtp}" or "123456"`);
+    setErrorMessage(null);
+
+    if (otpCode.trim() !== simulatedSentOtp && otpCode.trim() !== '123456') {
+      setErrorMessage(`Invalid verification code. Enter "${simulatedSentOtp}" or "123456" for verification.`);
       return;
     }
 
-    signupCustomer({
-      name,
-      email,
-      phone,
+    const newProfile = signupCustomer({
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
       universityId: selectedUniId,
-      landmark,
+      landmark: landmark.trim(),
     });
 
     const uni = universities.find(u => u.id === selectedUniId);
     if (uni) setActiveUniversity(uni);
 
+    setCurrentUser(newProfile);
+    setErrorMessage(null);
     setMode('profile');
     onClose();
   };
 
   const handleDirectLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const existing = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    setErrorMessage(null);
+
+    if (!validateEmail(email.trim())) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
+    if (!password) {
+      setErrorMessage('Please enter your password.');
+      return;
+    }
+
+    const existing = users.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
     if (existing) {
       setCurrentUser(existing);
       const uni = universities.find(u => u.id === existing.universityId);
       if (uni) setActiveUniversity(uni);
+      setErrorMessage(null);
       setMode('profile');
       onClose();
     } else {
-      const newUser = signupCustomer({
-        name: email.split('@')[0] || 'Student User',
-        email,
-        phone: phone || '+233 54 111 2233',
+      // Auto-create or login with entered credentials
+      const newProfile = signupCustomer({
+        name: email.split('@')[0].replace(/[^a-zA-Z]/g, ' ') || 'Student User',
+        email: email.trim(),
+        phone: phone.trim() || '+233 54 892 1432',
         universityId: selectedUniId,
-        landmark: 'Campus Hostel',
+        landmark: 'Campus Hall Block A',
       });
-      setCurrentUser(newUser);
+      setCurrentUser(newProfile);
+      setErrorMessage(null);
       setMode('profile');
       onClose();
     }
@@ -112,6 +173,14 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ isOpen, on
       }
       maxWidth="md"
     >
+      {/* Error Alert */}
+      {errorMessage && (
+        <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-2.5 text-xs text-rose-800 animate-in fade-in">
+          <ShieldAlert className="w-4 h-4 text-rose-600 flex-shrink-0" />
+          <span className="font-medium">{errorMessage}</span>
+        </div>
+      )}
+
       {mode === 'profile' && (
         <div className="space-y-6">
           <div className="flex items-center gap-4 p-4 bg-orange-50/70 border border-orange-200 rounded-3xl">
@@ -152,7 +221,10 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ isOpen, on
 
           <div className="grid grid-cols-2 gap-3 pt-2">
             <button
-              onClick={() => setMode('signup')}
+              onClick={() => {
+                setErrorMessage(null);
+                setMode('signup');
+              }}
               className="py-2.5 px-4 rounded-xl text-xs font-bold bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 transition-colors"
             >
               Switch / New Signup
@@ -168,10 +240,13 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ isOpen, on
       )}
 
       {mode === 'signup' && (
-        <form onSubmit={handleStartSignup} className="space-y-4">
+        <form onSubmit={handleStartSignup} className="space-y-3.5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Full Name</label>
+              <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+                <User className="w-3 h-3 text-brand-500" />
+                <span>Full Name</span>
+              </label>
               <input
                 type="text"
                 required
@@ -182,11 +257,14 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ isOpen, on
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Phone (Ghana)</label>
+              <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+                <Phone className="w-3 h-3 text-brand-500" />
+                <span>Phone (Ghana)</span>
+              </label>
               <input
                 type="tel"
                 required
-                placeholder="+233 54 000 0000"
+                placeholder="054 892 1432"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full p-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-brand-500"
@@ -195,7 +273,10 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ isOpen, on
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">Student / Personal Email</label>
+            <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+              <Mail className="w-3 h-3 text-brand-500" />
+              <span>Student / Personal Email</span>
+            </label>
             <input
               type="email"
               required
@@ -206,57 +287,85 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ isOpen, on
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">Select University</label>
-            <select
-              value={selectedUniId}
-              onChange={(e) => setSelectedUniId(e.target.value)}
-              className="w-full p-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl font-semibold text-stone-800 focus:ring-2 focus:ring-brand-500"
-            >
-              {universities.map(u => (
-                <option key={u.id} value={u.id}>
-                  {u.name} ({u.city})
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-stone-700 mb-1">Select Campus</label>
+              <select
+                value={selectedUniId}
+                onChange={(e) => setSelectedUniId(e.target.value)}
+                className="w-full p-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl font-semibold text-stone-800 focus:ring-2 focus:ring-brand-500"
+              >
+                {universities.map(u => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.city})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+                <MapPin className="w-3 h-3 text-brand-500" />
+                <span>Hall / Hostel Landmark</span>
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Pentagon Block B Room 314"
+                value={landmark}
+                onChange={(e) => setLandmark(e.target.value)}
+                className="w-full p-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">Delivery Hall / Room Landmark</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Pentagon Block B Room 314"
-              value={landmark}
-              onChange={(e) => setLandmark(e.target.value)}
-              className="w-full p-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-brand-500"
-            />
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+                <Lock className="w-3 h-3 text-brand-500" />
+                <span>Create Password</span>
+              </label>
+              <input
+                type="password"
+                required
+                placeholder="At least 6 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
 
-          <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">Create Password</label>
-            <input
-              type="password"
-              required
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-brand-500"
-            />
+            <div>
+              <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+                <Lock className="w-3 h-3 text-brand-500" />
+                <span>Confirm Password</span>
+              </label>
+              <input
+                type="password"
+                required
+                placeholder="Re-enter password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full p-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-brand-500"
+              />
+            </div>
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow-warm flex items-center justify-center gap-2"
+            className="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow-warm flex items-center justify-center gap-2 mt-2 transition-all"
           >
             <span>Continue to Email OTP Verification</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
-          <div className="text-center">
+          <div className="text-center pt-1">
             <button
               type="button"
-              onClick={() => setMode('login')}
+              onClick={() => {
+                setErrorMessage(null);
+                setMode('login');
+              }}
               className="text-xs text-stone-500 hover:text-brand-600 font-semibold"
             >
               Already have an account? Login here
@@ -277,7 +386,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ isOpen, on
               We simulated sending a 6-digit code to <strong className="text-stone-800">{email}</strong>
             </p>
             <div className="mt-2 bg-amber-50 border border-amber-200 p-2 rounded-xl text-xs font-mono font-bold text-amber-900">
-              Demo Code: <span className="text-brand-700 font-black">{simulatedSentOtp}</span> (or 123456)
+              Verification Code: <span className="text-brand-700 font-black">{simulatedSentOtp}</span> (or 123456)
             </div>
           </div>
 
@@ -305,7 +414,10 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ isOpen, on
       {mode === 'login' && (
         <form onSubmit={handleDirectLogin} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">Email Address</label>
+            <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+              <Mail className="w-3 h-3 text-brand-500" />
+              <span>Email Address</span>
+            </label>
             <input
               type="email"
               required
@@ -317,9 +429,13 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ isOpen, on
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">Password</label>
+            <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+              <Lock className="w-3 h-3 text-brand-500" />
+              <span>Password</span>
+            </label>
             <input
               type="password"
+              required
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -338,7 +454,10 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ isOpen, on
           <div className="text-center">
             <button
               type="button"
-              onClick={() => setMode('signup')}
+              onClick={() => {
+                setErrorMessage(null);
+                setMode('signup');
+              }}
               className="text-xs text-stone-500 hover:text-brand-600 font-semibold"
             >
               Don't have an account? Sign up
