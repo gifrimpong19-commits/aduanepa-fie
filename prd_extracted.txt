@@ -1,0 +1,361 @@
+Product Requirements Document
+
+AduanePa Fie
+
+University Food Delivery Marketplace
+
+"Enjoy the Taste in Every Bite"
+
+Document Status: Draft v1.0
+
+Prepared for: Founding / Engineering Team
+
+1. Overview
+
+1.1 Problem Statement
+
+Students living in or around Ghanaian universities lack a centralized, reliable platform to discover and order from campus-area food vendors, with transparent order tracking and trustworthy delivery.
+
+1.2 Product Vision
+
+AduanePa Fie ("Good Food, Home") is a multi-sided marketplace connecting students (customers), campus-area food vendors, and delivery personnel, with an admin layer that verifies and governs the ecosystem. The platform launches with a "Pay on Delivery" payment model and expands from there.
+
+1.3 Platform Actors
+
+Actor
+
+Role
+
+Customer
+
+Student/university-affiliated user who browses vendors, orders food, tracks delivery
+
+Vendor
+
+Campus-area food business that lists menus, fulfills orders
+
+Delivery Personnel (Rider)
+
+Independent courier who picks up and delivers orders
+
+Admin
+
+Internal team member who verifies accounts and manages platform operations
+
+1.4 Success Metrics (proposed)
+
+% of new users completing signup → first order (activation rate)
+
+Average order fulfillment time (order placed → delivered)
+
+Vendor approval turnaround time
+
+Rider acceptance rate per order
+
+Order completion rate (delivered vs. cancelled)
+
+Repeat order rate (30-day retention)
+
+2. Scope
+
+2.1 In Scope (v1)
+
+Customer signup/login (email OTP + password), profile & location setup
+
+University-based vendor discovery
+
+Vendor browsing, menu browsing, cart, checkout (Pay on Delivery only)
+
+Order placement with unique delivery-confirmation code
+
+Vendor portal for menu & order management
+
+Delivery personnel app/flow for accepting and fulfilling orders
+
+Admin portal for verifying/approving users, vendors, and riders
+
+Order status tracking (customer-facing)
+
+2.2 Out of Scope (v1 — candidates for later phases)
+
+In-app payment gateways (mobile money, card) — Pay on Delivery only at launch
+
+Real-time GPS rider tracking on a live map
+
+In-app chat between customer/vendor/rider
+
+Ratings & reviews
+
+Promotions engine / coupons (basic discounts on products noted, but no coupon codes)
+
+Multi-vendor cart / split checkout
+
+Native mobile apps (assumed responsive web or hybrid app; to be confirmed)
+
+3. User Personas
+
+Ama, the Student (Customer): Lives on/near campus, orders food between classes, wants fast, reliable delivery from vendors she trusts, pays cash/on delivery.
+
+Kofi, the Vendor (Chop Bar Owner): Runs a food stall near a university, wants more visibility and organized order intake without manual phone calls.
+
+Yaw, the Rider: Uses a bicycle/motorbike, wants a steady stream of nearby delivery jobs and clear pickup/dropoff info.
+
+Admin Ops Team: Verifies legitimacy of vendors and riders, keeps the platform safe and functional.
+
+4. Customer Experience
+
+4.1 New User Signup Flow
+
+Registration form: Name, phone number, email, profile picture, location (city + region, auto-derived from selected university).
+
+University selection: Dropdown listing all universities in Ghana.
+
+Email verification: OTP sent to email; user enters code to verify.
+
+Password creation: User sets and confirms password (post-verification).
+
+Detailed location setup: User enters a landmark manually or pins location via map.
+
+Location permission: User must enable device location access.
+
+Vendor discovery: User lands on main menu; only vendors matching the user's region + city + university are shown.
+
+Save profile → Home: User can subsequently switch/select a new address, which reloads nearby vendors for that university.
+
+Key Business Rule: Vendor visibility is strictly scoped to region, city, and university — not generic proximity/GPS radius.
+
+4.2 Returning User Login
+
+Login via email + password, or
+
+Login via email + OTP (passwordless option)
+
+Returning users skip onboarding and land directly on the home/vendor screen.
+
+4.3 Vendor Discovery & Browsing
+
+Home screen lists all vendors for the user's university.
+
+Each vendor displays open/closed status based on vendor-configured operating hours:
+
+Open → fully visible/interactive
+
+Closed → grayed out, non-orderable
+
+Selecting a vendor opens their storefront: categories, subcategories, products/delicacies, prices, discounts/deals.
+
+4.4 Cart & Ordering
+
+Adding a product creates/updates a cart tied to one vendor only — a cart cannot mix items from two vendors.
+
+Cart page allows: item quantity update, item removal, and browsing other nearby vendors.
+
+Each order generates a unique order/invoice number.
+
+4.5 Checkout
+
+User confirms delivery address and contact/phone details.
+
+User selects payment method — v1: Pay on Delivery only (architecture should allow adding payment methods later).
+
+User places the order.
+
+System generates a unique delivery confirmation code for that order — given to the rider at handoff to close the order.
+
+4.6 Order Tracking (Customer View)
+
+Customer sees real-time status progression:
+
+Order Placed
+
+Received by Vendor
+
+Preparing
+
+Ready for Pickup
+
+Picked Up by Rider (Out for Delivery)
+
+Delivered (requires correct confirmation code entry by rider)
+
+5. Vendor Experience
+
+5.1 Vendor Signup
+
+Required fields/uploads (all mandatory):
+
+Owner name & business name
+
+Business certificate (document upload)
+
+Profile picture / shop logo
+
+Product catalog: images, names, descriptions, categories/subcategories, prices, discounts/deals
+
+Operating hours (open/close times per day)
+
+Location: region, city, university
+
+5.2 Vendor Portal Functionality
+
+Dashboard: incoming orders queue, order status management
+
+Menu management: create/edit/delete products, categories, prices, deals
+
+Order lifecycle actions: Accept order → Mark preparing → Mark ready for pickup
+
+Toggle store open/closed (in addition to scheduled hours)
+
+View business profile & verification status
+
+(Recommended addition) Basic sales/order history view
+
+5.3 Order Handling Rules
+
+Vendor receives new orders and must accept before preparation begins.
+
+Vendor (or rider) can update order status through the preparation stages.
+
+Vendor is responsible for confirming the accepting rider is within the correct city/region (since proximity isn't system-enforced).
+
+6. Delivery Personnel (Rider) Experience
+
+6.1 Rider Signup
+
+Required fields/uploads:
+
+Name, email, phone
+
+Delivery mode: Bicycle / Motorbike / Car
+
+Location (must be validated against a valid city, region, or university)
+
+Driver's license upload
+
+Vehicle documents upload
+
+6.2 Order Acceptance Model
+
+Orders are visible to any verified rider within the same city/region as the order — not proximity-based matching.
+
+Vendor bears responsibility for validating the accepting rider is appropriately located.
+
+Once a rider accepts an order, full order/pickup details are shared with them.
+
+6.3 Order Status Updates (Rider)
+
+Rider (or vendor) updates status across:
+
+Pending
+
+Accepted
+
+Preparing
+
+Accepted by Shop (ready for pickup)
+
+Out for Delivery
+
+Delivered — requires the customer to provide the correct confirmation code; order cannot close without code validation.
+
+7. Admin Experience
+
+7.1 Core Admin Responsibilities
+
+Account approval workflow for all three account types: Customers (if applicable), Vendors, Riders.
+
+Upon approval, the user receives a unique identification code.
+
+Review uploaded verification documents (business certificates, driver's licenses, vehicle documents).
+
+Suspend/reject/reinstate accounts.
+
+7.2 Recommended Admin Functionality (platform governance)
+
+User management: search/filter/view all customers, vendors, riders; activate/deactivate accounts.
+
+Vendor management: approve/reject new vendor applications; view/edit vendor details; monitor open/closed compliance.
+
+Rider management: approve/reject rider applications; verify license & vehicle docs; monitor active riders per city/region.
+
+Order oversight: view all orders platform-wide, filter by status/vendor/university/date; intervene in disputed or stuck orders.
+
+University & location management: add/edit the master list of Ghanaian universities and their associated regions/cities.
+
+Content moderation: review/approve vendor menu items and images for policy compliance.
+
+Analytics dashboard: signups, active vendors, order volume, completion rates, per-university breakdown.
+
+Dispute/support handling: flag and resolve issues (undelivered orders, incorrect codes, complaints).
+
+Notification management: system-wide announcements/alerts to vendors/riders/customers.
+
+Role & permissions management: for multiple admin/staff accounts with varying access levels.
+
+8. Core Data Entities (high-level)
+
+Entity
+
+Key Attributes
+
+User (Customer)
+
+name, phone, email, password hash, profile picture, university, region, city, landmark/geo-location, verification status
+
+University
+
+name, region, city
+
+Vendor
+
+business name, owner name, certificate doc, logo, university/region/city, opening/closing hours, status (open/closed/pending/approved), unique ID code
+
+Product
+
+vendor ID, category, subcategory, name, description, price, discount, image, availability
+
+Order
+
+unique order ID, customer ID, vendor ID, items, total, delivery address, payment method, confirmation code, status, timestamps
+
+Rider
+
+name, email, phone, vehicle type, license doc, vehicle docs, region/city/university, status (pending/approved), unique ID code
+
+Admin
+
+name, email, role/permissions
+
+9. Open Questions / Decisions Needed
+
+Is this a mobile app (iOS/Android), responsive web app, or both?
+
+Does "unique identification code" for approved users serve as a login credential, a display badge, or both?
+
+Should customers require admin approval too, or only vendors and riders? (Doc says "this applies to all users, vendors, and delivery guys" — needs confirmation since customer approval isn't mentioned elsewhere.)
+
+What happens to an existing cart if a customer starts browsing a second vendor — is it cleared, or do they get a "replace cart?" prompt?
+
+Are discounts/deals vendor-defined only, or can admin also run platform-wide promotions?
+
+What is the dispute-resolution process if a rider claims delivery but the customer disputes it?
+
+Push notification strategy for order status changes (SMS vs in-app vs email)?
+
+10. Assumptions
+
+All operations are initially scoped to Ghana, with university/region/city as the core geographic taxonomy (not free-form GPS proximity, except for the initial map-based landmark pin).
+
+Pay on Delivery is a cash-based flow at launch; system should be designed to plug in additional payment gateways later without a data-model rewrite.
+
+One active cart per customer at a time, tied to a single vendor.
+
+11. Next Steps
+
+Confirm open questions in Section 9 with stakeholders.
+
+Prioritize v1 feature set vs. later phases (Section 2.2).
+
+Produce wireframes for: customer onboarding, vendor storefront, checkout, vendor portal, rider app, admin dashboard.
+
+Define detailed API/data schema based on Section 8.
