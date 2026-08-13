@@ -75,13 +75,16 @@ interface MarketplaceContextType {
 
 const MarketplaceContext = createContext<MarketplaceContextType | undefined>(undefined);
 
-// Storage key version to ensure all devices immediately load authentic African avatars
-const STORAGE_PREFIX = 'aduanepa_v2_';
+// Storage key version to ensure all devices immediately load authentic African avatars & updated contact
+const STORAGE_PREFIX = 'aduanepa_v3_';
 
 export const MarketplaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Clear legacy v1 localStorage keys if present on device
+  // Clear legacy v1 and v2 localStorage keys if present on device
   useEffect(() => {
-    ['aduanepa_users', 'aduanepa_riders', 'aduanepa_current_user', 'aduanepa_vendors'].forEach(key => {
+    [
+      'aduanepa_users', 'aduanepa_riders', 'aduanepa_current_user', 'aduanepa_vendors',
+      'aduanepa_v2_users', 'aduanepa_v2_riders', 'aduanepa_v2_current_user', 'aduanepa_v2_vendors', 'aduanepa_v2_orders'
+    ].forEach(key => {
       localStorage.removeItem(key);
     });
   }, []);

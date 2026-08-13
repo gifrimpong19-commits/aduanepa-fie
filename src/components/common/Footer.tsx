@@ -81,7 +81,7 @@ export const Footer: React.FC = () => {
             <div className="space-y-2 text-xs text-stone-300">
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-brand-500" />
-                <span>+233 (0) 54 000 4821</span>
+                <span>+233 (0) 54 586 9725</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-brand-500" />
