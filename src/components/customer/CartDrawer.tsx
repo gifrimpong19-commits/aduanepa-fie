@@ -49,19 +49,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs transition-opacity"
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between border-l border-stone-200">
+      {/* Drawer Container: 100% width on mobile, max-w-md on desktop */}
+      <div className="fixed inset-y-0 right-0 max-w-full flex w-full sm:w-auto sm:pl-10 pointer-events-none">
+        <div className="w-full sm:max-w-md bg-white shadow-2xl flex flex-col justify-between border-l border-stone-200 pointer-events-auto overflow-hidden">
           
           {/* Header */}
-          <div className="p-6 pb-4 border-b border-stone-100 flex items-center justify-between">
+          <div className="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-stone-100 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-orange-100 text-brand-600 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-orange-100 text-brand-600 flex items-center justify-center flex-shrink-0">
                 <ShoppingBag className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-display font-extrabold text-lg text-stone-900">Your Food Cart</h3>
+                <h3 className="font-display font-extrabold text-base sm:text-lg text-stone-900">Your Food Cart</h3>
                 {vendor && (
-                  <p className="text-xs text-brand-600 font-bold truncate max-w-[200px]">
+                  <p className="text-xs text-brand-600 font-bold truncate max-w-[180px] sm:max-w-[220px]">
                     {vendor.businessName}
                   </p>
                 )}
@@ -71,15 +72,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <button
               onClick={onClose}
               className="p-2 rounded-xl text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+              title="Close cart"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Cart Content */}
-          <div className="p-6 flex-1 overflow-y-auto space-y-4">
+          <div className="p-4 sm:p-6 flex-1 overflow-y-auto space-y-4">
             {cart.items.length === 0 ? (
-              <div className="text-center py-20 space-y-3">
+              <div className="text-center py-16 sm:py-20 space-y-3">
                 <div className="w-16 h-16 rounded-full bg-orange-50 text-brand-400 flex items-center justify-center mx-auto text-2xl">
                   🍲
                 </div>
@@ -100,12 +102,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     return (
                       <div 
                         key={item.product.id}
-                        className="bg-stone-50/80 p-3.5 rounded-2xl border border-stone-200/80 flex items-start justify-between gap-3 shadow-2xs"
+                        className="bg-stone-50/90 p-3 sm:p-3.5 rounded-2xl border border-stone-200/80 flex items-center justify-between gap-2.5 shadow-2xs"
                       >
                         <img
                           src={item.product.image}
                           alt={item.product.name}
-                          className="w-14 h-14 rounded-xl object-cover border border-stone-200 flex-shrink-0"
+                          className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover border border-stone-200 flex-shrink-0"
                         />
 
                         <div className="flex-1 min-w-0">
@@ -123,7 +125,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         </div>
 
                         {/* Quantity picker */}
-                        <div className="flex items-center gap-2 bg-white px-2 py-1 rounded-xl border border-stone-200">
+                        <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-xl border border-stone-200 flex-shrink-0">
                           <button
                             onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
                             className="text-stone-500 hover:text-stone-800 p-0.5"
@@ -141,7 +143,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                         <button
                           onClick={() => removeFromCart(item.product.id)}
-                          className="text-stone-400 hover:text-rose-500 p-1"
+                          className="text-stone-400 hover:text-rose-500 p-1 flex-shrink-0"
                           title="Remove item"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -152,7 +154,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
 
                 {/* Clear cart action */}
-                <div className="pt-2 text-right">
+                <div className="pt-2 flex justify-between items-center text-xs">
+                  <span className="text-stone-400 text-[11px]">{cart.items.length} item{cart.items.length > 1 ? 's' : ''} in cart</span>
                   <button
                     onClick={clearCart}
                     className="text-[11px] font-bold text-stone-400 hover:text-rose-600 transition-colors"
@@ -166,13 +169,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
           {/* Footer Checkout Summary */}
           {cart.items.length > 0 && (
-            <div className="p-6 bg-stone-50 border-t border-stone-200 space-y-4">
+            <div className="p-4 sm:p-6 bg-stone-50 border-t border-stone-200 space-y-3.5 sm:space-y-4">
               
               {/* Payment Method Notice */}
               <div className="bg-amber-100/70 border border-amber-300/80 rounded-xl p-2.5 flex items-center gap-2 text-xs text-amber-950">
                 <ShieldCheck className="w-4 h-4 text-amber-700 flex-shrink-0" />
-                <span>
-                  <strong>Pay on Delivery (Cash / MoMo):</strong> Pay rider yaw/courier upon handoff after verifying code.
+                <span className="text-[11px] sm:text-xs">
+                  <strong>Pay on Delivery:</strong> Pay cash or MoMo upon arrival after verifying 4-digit code.
                 </span>
               </div>
 
@@ -214,7 +217,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 }}
                 className={`w-full py-3.5 rounded-2xl font-display font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-warm ${
                   meetsMinOrder
-                    ? 'bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white hover:shadow-glow'
+                    ? 'bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white hover:shadow-glow active:scale-98'
                     : 'bg-stone-200 text-stone-400 cursor-not-allowed'
                 }`}
               >

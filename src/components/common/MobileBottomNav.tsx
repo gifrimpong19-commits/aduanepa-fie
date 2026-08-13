@@ -38,6 +38,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     o => o.customerId === currentUser.id && o.status !== 'delivered' && o.status !== 'cancelled'
   ).length;
 
+  const handleExploreClick = () => {
+    if (onResetVendorSelection) {
+      onResetVendorSelection();
+    }
+    setActiveView('home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const roleConfigs: { role: Role; label: string; icon: React.ReactNode; desc: string; color: string }[] = [
     { 
       role: 'customer', 
@@ -77,11 +85,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           
           {/* 1. Explore / Home */}
           <button
-            onClick={() => {
-              if (onResetVendorSelection) onResetVendorSelection();
-              setActiveView('home');
-            }}
-            className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all ${
+            onClick={handleExploreClick}
+            className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all cursor-pointer ${
               activeView === 'home' 
                 ? 'text-brand-600 font-bold scale-105' 
                 : 'text-stone-500 hover:text-stone-800'
@@ -94,8 +99,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           {/* 2. My Orders (Customer mode) or Portal View */}
           {currentRole === 'customer' ? (
             <button
-              onClick={() => setActiveView(activeView === 'orders' ? 'home' : 'orders')}
-              className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all ${
+              onClick={() => {
+                setActiveView(activeView === 'orders' ? 'home' : 'orders');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all cursor-pointer ${
                 activeView === 'orders' 
                   ? 'text-brand-600 font-bold scale-105' 
                   : 'text-stone-500 hover:text-stone-800'
@@ -113,8 +121,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             </button>
           ) : (
             <button
-              onClick={() => setActiveView('home')}
-              className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all ${
+              onClick={() => {
+                setActiveView('home');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className={`flex flex-col items-center justify-center py-1 px-3 rounded-2xl transition-all cursor-pointer ${
                 activeView === 'home' 
                   ? 'text-brand-600 font-bold scale-105' 
                   : 'text-stone-500 hover:text-stone-800'
@@ -131,7 +142,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           {currentRole === 'customer' && (
             <button
               onClick={onOpenCart}
-              className="relative -top-3 w-12 h-12 rounded-full bg-gradient-to-tr from-brand-600 to-amber-500 text-white shadow-warm flex items-center justify-center active:scale-95 transition-transform"
+              className="relative -top-3 w-12 h-12 rounded-full bg-gradient-to-tr from-brand-600 to-amber-500 text-white shadow-warm flex items-center justify-center active:scale-95 transition-transform cursor-pointer"
               title="Cart"
             >
               <ShoppingBag className="w-5 h-5" />
@@ -146,7 +157,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           {/* 4. Role Switcher Trigger */}
           <button
             onClick={() => setShowRoleModal(true)}
-            className="flex flex-col items-center justify-center py-1 px-3 rounded-2xl text-stone-500 hover:text-stone-800 transition-all"
+            className="flex flex-col items-center justify-center py-1 px-3 rounded-2xl text-stone-500 hover:text-stone-800 transition-all cursor-pointer"
             title="Switch Role"
           >
             <div className="w-5 h-5 rounded-lg bg-stone-100 border border-stone-300 flex items-center justify-center text-[10px] font-black text-stone-700">
@@ -158,7 +169,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           {/* 5. Profile */}
           <button
             onClick={onOpenAuth}
-            className="flex flex-col items-center justify-center py-1 px-3 rounded-2xl text-stone-500 hover:text-stone-800 transition-all"
+            className="flex flex-col items-center justify-center py-1 px-3 rounded-2xl text-stone-500 hover:text-stone-800 transition-all cursor-pointer"
           >
             <User className="w-5 h-5" />
             <span className="text-[10px] mt-0.5">Profile</span>
@@ -204,8 +215,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                       setActiveView('home');
                       if (onResetVendorSelection) onResetVendorSelection();
                       setShowRoleModal(false);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className={`w-full text-left p-3.5 rounded-2xl border-2 transition-all flex items-center gap-3.5 ${
+                    className={`w-full text-left p-3.5 rounded-2xl border-2 transition-all flex items-center gap-3.5 cursor-pointer ${
                       isActive 
                         ? `${color} ring-2 ring-brand-500 shadow-sm` 
                         : 'bg-white border-stone-200 hover:bg-stone-50'
