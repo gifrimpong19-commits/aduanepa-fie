@@ -12,14 +12,16 @@ import {
   AlertCircle,
   Plus,
   TrendingUp,
-  Tag
+  Tag,
+  Utensils
 } from 'lucide-react';
 
 interface CustomerHomeProps {
   onSelectVendor: (vendor: Vendor) => void;
 }
 
-const FALLBACK_BANNER = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80';
+const HERO_FOOD_IMAGE = 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80';
+const FALLBACK_BANNER = 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80';
 const FALLBACK_LOGO = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=200&h=200&q=80';
 const FALLBACK_DISH = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80';
 
@@ -59,7 +61,18 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({ onSelectVendor }) =>
       vendor.categories.some(c => c.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesCategory = selectedCategory === 'All' || 
-      vendor.categories.some(c => c.toLowerCase().includes(selectedCategory.toLowerCase()));
+      vendor.categories.some(c => c.toLowerCase().includes(selectedCategory.toLowerCase())) ||
+      products.some(p => p.vendorId === vendor.id && p.category.toLowerCase().includes(selectedCategory.toLowerCase()));
+
+    return matchesSearch && matchesCategory;
+  });
+
+  const filteredProducts = campusProducts.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategory = selectedCategory === 'All' || 
+      product.category.toLowerCase().includes(selectedCategory.toLowerCase());
 
     return matchesSearch && matchesCategory;
   });
@@ -89,38 +102,39 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({ onSelectVendor }) =>
         </div>
       )}
 
-      {/* Hero Campus Banner */}
-      <div className="relative rounded-3xl overflow-hidden shadow-warm border border-orange-100 bg-stone-900 text-white min-h-[300px] sm:min-h-[340px] flex items-center">
+      {/* Vibrant Hero Food Banner (Vivid Ghanaian Food Photography) */}
+      <div className="relative rounded-3xl overflow-hidden shadow-warm border border-orange-200/60 bg-stone-950 text-white min-h-[300px] sm:min-h-[350px] flex items-center">
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity scale-105 transition-transform duration-1000"
-          style={{ backgroundImage: `url(${activeUniversity.bannerImage || FALLBACK_BANNER})` }}
+          className="absolute inset-0 bg-cover bg-center brightness-105 saturate-125 scale-100 transition-transform duration-1000"
+          style={{ backgroundImage: `url(${activeUniversity.bannerImage || HERO_FOOD_IMAGE})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-950 via-stone-900/90 to-brand-950/70" />
+        {/* Soft, vibrant warm gradient overlay to let the food photograph shine through */}
+        <div className="absolute inset-0 bg-gradient-to-r from-stone-950/90 via-stone-950/65 to-brand-950/40" />
 
         <div className="relative z-10 p-5 sm:p-10 max-w-3xl space-y-3.5 sm:space-y-4">
-          <div className="inline-flex items-center gap-2 bg-brand-500/20 text-brand-300 border border-brand-500/30 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-md">
-            <Flame className="w-3.5 h-3.5 text-brand-400 fill-brand-400" />
-            <span>Serving {activeUniversity.name}</span>
+          <div className="inline-flex items-center gap-2 bg-brand-500/30 text-amber-300 border border-brand-400/40 px-3.5 py-1 rounded-full text-xs font-black backdrop-blur-md shadow-sm">
+            <Flame className="w-4 h-4 text-amber-400 fill-amber-400 animate-pulse" />
+            <span>Hot Campus Chop Bars &bull; {activeUniversity.name}</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold font-display leading-tight text-white">
-            Craving Good Food at <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-brand-400">{activeUniversity.shortName}</span>?
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black font-display leading-tight text-white drop-shadow-md">
+            Delicious Ghanaian Meals at <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-brand-400 to-orange-400">{activeUniversity.shortName}</span>
           </h1>
 
-          <p className="text-xs sm:text-sm md:text-base text-stone-300 max-w-xl font-normal leading-relaxed">
-            Order authentic Waakye, Smoky Jollof, Banku with Tilapia, and Night Market Grills straight to your hostel or lecture hall. Pay cash or MoMo on delivery!
+          <p className="text-xs sm:text-sm md:text-base text-stone-200 max-w-xl font-medium leading-relaxed drop-shadow-sm">
+            Freshly prepared Royal Waakye, Party Jollof, Steaming Fufu with Goat Light Soup, Banku with Grilled Tilapia & Ice-Chilled Sobolo delivered directly to your hostel room. Pay cash or MoMo at your door!
           </p>
 
           <div className="pt-1">
-            <div className="text-[11px] sm:text-xs text-stone-400 font-semibold mb-1.5 flex items-center gap-1.5">
+            <div className="text-[11px] sm:text-xs text-amber-200 font-bold mb-1.5 flex items-center gap-1.5 drop-shadow-xs">
               <MapPin className="w-3.5 h-3.5 text-brand-400" />
-              <span>Direct delivery to popular spots:</span>
+              <span>Fast hostel delivery:</span>
             </div>
             <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
               {activeUniversity.popularLandmarks.slice(0, 6).map((landmark, idx) => (
                 <span 
                   key={idx}
-                  className="text-[10px] sm:text-[11px] bg-white/10 hover:bg-white/20 text-stone-200 px-2.5 py-0.5 rounded-lg border border-white/10 transition-colors"
+                  className="text-[10px] sm:text-[11px] bg-stone-900/60 hover:bg-stone-900/80 text-amber-100 font-medium px-2.5 py-0.5 rounded-lg border border-amber-300/30 backdrop-blur-xs transition-colors"
                 >
                   {landmark}
                 </span>
@@ -136,7 +150,7 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({ onSelectVendor }) =>
           <Search className="w-4 h-4 sm:w-5 sm:h-5 text-stone-400 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search Waakye, Jollof, Red Red, Fufu, Fried Yam, Sobolo..."
+            placeholder="Search Waakye, Jollof, Fufu, Banku, Kelewele, Red Red, Sobolo..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-11 sm:pl-12 pr-4 py-3 sm:py-3.5 rounded-2xl bg-white border border-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm text-xs sm:text-sm text-stone-800 placeholder-stone-400"
@@ -177,7 +191,7 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({ onSelectVendor }) =>
         </div>
       </div>
 
-      {/* Category Filter Pills */}
+      {/* Category Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         {categories.map((cat) => {
           const isSelected = selectedCategory === cat;
@@ -204,25 +218,25 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({ onSelectVendor }) =>
         })}
       </div>
 
-      {/* Trending Campus Dishes Showcase (New Rich Menu Section!) */}
-      {campusProducts.length > 0 && selectedCategory === 'All' && !searchQuery && (
+      {/* Featured Campus Menu Dishes (Populated under selected tab) */}
+      {filteredProducts.length > 0 && (
         <div className="space-y-3 pt-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4" />
+                {selectedCategory === 'All' ? <TrendingUp className="w-4 h-4" /> : <Utensils className="w-4 h-4" />}
               </div>
               <div>
-                <h3 className="font-display font-extrabold text-lg text-stone-900">
-                  Trending Dishes at {activeUniversity.shortName}
+                <h3 className="font-display font-extrabold text-base sm:text-lg text-stone-900">
+                  {selectedCategory === 'All' ? `Trending Dishes at ${activeUniversity.shortName}` : `${selectedCategory} Dishes (${filteredProducts.length})`}
                 </h3>
-                <p className="text-[11px] text-stone-500">Student favorites cooked hot on campus</p>
+                <p className="text-[11px] text-stone-500">Cooked fresh daily by certified campus vendors</p>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {campusProducts.slice(0, 4).map((product) => {
+            {filteredProducts.slice(0, selectedCategory === 'All' ? 4 : 8).map((product) => {
               const vendor = vendors.find(v => v.id === product.vendorId);
               const discountedPrice = product.discountPercentage 
                 ? product.price * (1 - product.discountPercentage / 100)
@@ -256,7 +270,7 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({ onSelectVendor }) =>
                   <div className="p-3 flex-1 flex flex-col justify-between space-y-2">
                     <div>
                       <p className="text-[10px] text-brand-600 font-bold uppercase tracking-wider truncate">
-                        {vendor?.businessName}
+                        {vendor?.businessName || 'Campus Spot'}
                       </p>
                       <h4 className="font-display font-bold text-xs sm:text-sm text-stone-900 group-hover:text-brand-600 transition-colors line-clamp-1">
                         {product.name}
