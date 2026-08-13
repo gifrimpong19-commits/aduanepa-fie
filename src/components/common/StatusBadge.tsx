@@ -1,5 +1,5 @@
 import React from 'react';
-import { OrderStatus } from '../../types';
+import { OrderStatus, UserStatus } from '../../types';
 import { 
   Clock, 
   CheckCircle2, 
@@ -7,11 +7,13 @@ import {
   PackageCheck, 
   Bike, 
   XCircle,
-  AlertTriangle 
+  AlertTriangle,
+  ShieldCheck,
+  ShieldAlert
 } from 'lucide-react';
 
 interface StatusBadgeProps {
-  status: OrderStatus;
+  status: OrderStatus | UserStatus;
   size?: 'sm' | 'md' | 'lg';
   isDisputed?: boolean;
 }
@@ -21,7 +23,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   size = 'md',
   isDisputed = false 
 }) => {
-  const getStatusConfig = (s: OrderStatus) => {
+  const getStatusConfig = (s: OrderStatus | UserStatus) => {
     switch (s) {
       case 'placed':
         return {
@@ -64,6 +66,25 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
           label: 'Cancelled',
           icon: <XCircle className="w-3.5 h-3.5 text-rose-600" />,
           bg: 'bg-rose-100 text-rose-950 border-rose-300',
+        };
+      case 'approved':
+        return {
+          label: 'Verified & Active',
+          icon: <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />,
+          bg: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+        };
+      case 'pending':
+        return {
+          label: 'Pending Approval',
+          icon: <Clock className="w-3.5 h-3.5 text-amber-600" />,
+          bg: 'bg-amber-100 text-amber-900 border-amber-300',
+        };
+      case 'rejected':
+      case 'suspended':
+        return {
+          label: s === 'rejected' ? 'Rejected' : 'Suspended',
+          icon: <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />,
+          bg: 'bg-rose-100 text-rose-900 border-rose-300',
         };
       default:
         return {

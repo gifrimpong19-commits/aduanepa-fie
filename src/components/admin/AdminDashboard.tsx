@@ -4,8 +4,6 @@ import { StatusBadge } from '../common/StatusBadge';
 import { GhanaianUniversity, AuditEventType } from '../../types';
 import { 
   ShieldCheck, 
-  Store, 
-  Bike, 
   TrendingUp, 
   CheckCircle2, 
   XCircle, 
@@ -19,9 +17,7 @@ import {
   Globe,
   Trash2,
   Download,
-  AlertTriangle,
-  Clock,
-  ShieldAlert
+  Clock
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 
@@ -65,7 +61,6 @@ export const AdminDashboard: React.FC = () => {
   const totalVolume = orders.reduce((sum, o) => sum + o.total, 0);
   const deliveredCount = orders.filter(o => o.status === 'delivered').length;
   const pendingApprovalsCount = vendors.filter(v => v.status === 'pending').length + riders.filter(r => r.status === 'pending').length;
-  const disputedOrders = orders.filter(o => o.disputed);
 
   const handleApprove = (type: 'vendor' | 'rider', id: string) => {
     approveUserStatus(type, id);

@@ -189,6 +189,11 @@ export const MarketplaceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       ...event
     };
     setAuditLogs(prev => [newLog, ...prev.slice(0, 99)]);
+    
+    // Update active session lastActive
+    setActiveSessions(prev => 
+      prev.map(s => s.userId === event.userId ? { ...s, lastActive: 'Just now', status: 'online' } : s)
+    );
   };
 
   const clearAuditLogs = () => {
