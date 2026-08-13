@@ -1,15 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   Role, 
-  GhanaianUniversity, 
-  UserProfile, 
+  OrderStatus, 
   Vendor, 
   ProductItem, 
-  Cart, 
-  CartItem, 
+  RiderProfile, 
   Order, 
-  OrderStatus, 
-  RiderProfile 
+  UserProfile, 
+  GhanaianUniversity, 
+  Cart,
+  AuditLog,
+  UserSession,
+  CartItem
 } from '../types';
 import { GHANAIAN_UNIVERSITIES } from '../data/universities';
 import { 
@@ -17,7 +19,9 @@ import {
   INITIAL_PRODUCTS, 
   INITIAL_RIDERS, 
   INITIAL_ORDERS, 
-  INITIAL_USERS 
+  INITIAL_USERS,
+  INITIAL_AUDIT_LOGS,
+  INITIAL_SESSIONS
 } from '../data/mockData';
 
 interface MarketplaceContextType {
@@ -68,6 +72,12 @@ interface MarketplaceContextType {
   rejectUserStatus: (type: 'vendor' | 'rider' | 'customer', id: string, reason?: string) => void;
   addUniversity: (uni: GhanaianUniversity) => void;
   
+  // Security & Audit Logs
+  auditLogs: AuditLog[];
+  activeSessions: UserSession[];
+  logSecurityEvent: (event: Omit<AuditLog, 'id' | 'timestamp'>) => void;
+  clearAuditLogs: () => void;
+
   // Auth & Guest state
   isGuest: boolean;
   setIsGuest: (isGuest: boolean) => void;
@@ -153,6 +163,38 @@ export const MarketplaceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const saved = localStorage.getItem(`${STORAGE_PREFIX}cart`);
     return saved ? JSON.parse(saved) : { vendorId: null, items: [] };
   });
+
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => {
+    const saved = localStorage.getItem(`${STORAGE_PREFIX}audit_logs`);
+    return saved ? JSON.parse(saved) : INITIAL_AUDIT_LOGS;
+  });
+
+  const [activeSessions, setActiveSessions] = useState<UserSession[]>(() => {
+    const saved = localStorage.getItem(`${STORAGE_PREFIX}active_sessions`);
+    return saved ? JSON.parse(saved) : INITIAL_SESSIONS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(`${STORAGE_PREFIX}audit_logs`, JSON.stringify(auditLogs));
+  }, [auditLogs]);
+
+  useEffect(() => {
+    localStorage.setItem(`${STORAGE_PREFIX}active_sessions`, JSON.stringify(activeSessions));
+  }, [activeSessions]);
+
+  const logSecurityEvent = (event: Omit<AuditLog, 'id' | 'timestamp'>) => {
+    const newLog: AuditLog = {
+      id: `log-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      timestamp: new Date().toISOString(),
+      ...event
+    };
+    setAuditLogs(prev => [newLog, ...prev.slice(0, 99)]);
+  };
+
+  const clearAuditLogs = () => {
+    setAuditLogs([]);
+    localStorage.removeItem(`${STORAGE_PREFIX}audit_logs`);
+  };
 
   useEffect(() => {
     localStorage.setItem(`${STORAGE_PREFIX}universities`, JSON.stringify(universities));
@@ -552,6 +594,10 @@ export const MarketplaceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         approveUserStatus,
         rejectUserStatus,
         addUniversity,
+        auditLogs,
+        activeSessions,
+        logSecurityEvent,
+        clearAuditLogs,
         loginAs,
         signupCustomer,
       }}

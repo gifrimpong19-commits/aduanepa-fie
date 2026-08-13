@@ -126,6 +126,23 @@ CREATE TABLE IF NOT EXISTS orders (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 6. Platform Audit & Security Logs
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id VARCHAR(64) PRIMARY KEY,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    event_type VARCHAR(64) NOT NULL,
+    user_id VARCHAR(64) NOT NULL,
+    user_name VARCHAR(128) NOT NULL,
+    user_role VARCHAR(32) NOT NULL,
+    unique_id_code VARCHAR(32),
+    university_id VARCHAR(64),
+    ip_address VARCHAR(45) NOT NULL,
+    device_info VARCHAR(255),
+    location_city VARCHAR(128),
+    status VARCHAR(32) DEFAULT 'success',
+    details TEXT
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_vendors_university ON vendors(university_id);
 CREATE INDEX IF NOT EXISTS idx_products_vendor ON products(vendor_id);
@@ -133,6 +150,8 @@ CREATE INDEX IF NOT EXISTS idx_orders_customer ON orders(customer_id);
 CREATE INDEX IF NOT EXISTS idx_orders_vendor ON orders(vendor_id);
 CREATE INDEX IF NOT EXISTS idx_orders_rider ON orders(rider_id);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON audit_logs(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_event ON audit_logs(event_type);
 
 -- Security: Row Level Security (RLS) Enablement
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
@@ -140,3 +159,5 @@ ALTER TABLE vendors ENABLE ROW LEVEL SECURITY;
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE riders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+

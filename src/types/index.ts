@@ -156,3 +156,48 @@ export interface RiderProfile {
   rating: number;
   createdAt: string;
 }
+
+export type AuditEventType = 
+  | 'user_login' 
+  | 'user_signup' 
+  | 'role_switch' 
+  | 'order_placed' 
+  | 'order_accepted' 
+  | 'order_delivered' 
+  | 'vendor_registered' 
+  | 'vendor_status_change' 
+  | 'rider_registered' 
+  | 'rider_status_change'
+  | 'dispute_logged';
+
+export interface AuditLog {
+  id: string;
+  timestamp: string;
+  eventType: AuditEventType;
+  userId: string;
+  userName: string;
+  userRole: Role;
+  uniqueIdCode?: string;
+  universityId: string;
+  ipAddress: string;
+  deviceInfo: string;
+  locationCity: string;
+  status: 'success' | 'warning' | 'failed';
+  details: string;
+}
+
+export interface UserSession {
+  sessionId: string;
+  userId: string;
+  userName: string;
+  userRole: Role;
+  uniqueIdCode: string;
+  universityId: string;
+  ipAddress: string;
+  device: string;
+  browser: string;
+  loginTime: string;
+  lastActive: string;
+  status: 'online' | 'idle' | 'offline';
+}
+
